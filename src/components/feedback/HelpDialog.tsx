@@ -35,19 +35,21 @@ const HelpDialog: React.FC<HelpDialogProps> = ({
               <li>Start a project from the project list</li>
               <li>Enter requirements in the Product Vision AI</li>
               <li>Click "Generate Specifications" to get output</li>
-              <li>Copy the output using the Copy button</li>
-              <li>Paste the specifications into the Code Writer AI</li>
+              <li>Copy the output using your clipboard (Ctrl+C/Cmd+C)</li>
+              <li>Navigate to the Code Writer AI</li>
+              <li>Paste the specifications (Ctrl+V/Cmd+V)</li>
               <li>Click "Generate Code" to create the implementation</li>
-              <li>Complete the workflow to finish the project</li>
+              <li>Review and certify the generated code</li>
+              <li>Complete the project</li>
             </ol>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-2">Controls</h3>
             <ul className="list-disc pl-5 text-gray-300 space-y-2">
-              <li><strong>Copy Button</strong>: Copies output from an AI agent</li>
-              <li><strong>Paste Button</strong>: Pastes content into an AI agent's input</li>
+              <li><strong>Next/Previous Agent</strong>: Switch between AI agent panels</li>
               <li><strong>Generate Button</strong>: Tells the AI to process input</li>
+              <li><strong>Certify Button</strong>: Approves the final code output</li>
             </ul>
           </div>
           

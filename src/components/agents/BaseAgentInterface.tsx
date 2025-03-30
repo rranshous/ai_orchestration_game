@@ -1,10 +1,9 @@
 import React, { ReactNode, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { AiAgent, setInput, startProcessing, completeProcessing, setError } from '../../state/reducers/agentReducer';
-import { useClipboard } from '../../context/ClipboardContext';
 import { delay } from '../../utils/helpers';
 import { completeStep } from '../../state/reducers/workflowReducer';
-import { showToast, showCompletionDialog } from '../../state/reducers/notificationReducer';
+import { showCompletionDialog } from '../../state/reducers/notificationReducer';
 import { completeProject } from '../../state/reducers/projectReducer';
 
 interface BaseAgentProps {
@@ -14,14 +13,13 @@ interface BaseAgentProps {
 
 const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
   const dispatch = useAppDispatch();
-  const { content, sourceId, setCopyContent } = useClipboard();
   
   // Get workflow and project information
   const workflow = useAppSelector(state => state.workflow.current);
   const activeStep = useAppSelector(state => workflow.steps.find(step => step.isActive));
   
   // Check if this is the final step (certification step)
-  const isFinalStep = workflow.steps.findIndex(step => step.id === activeStep?.id) === workflow.steps.length - 1;
+  const isCertificationStep = activeStep?.id === "step-certification";
   const activeProject = useAppSelector(state => {
     const activeProjectId = state.projects.activeProjectId;
     return activeProjectId ? state.projects.projects.find(p => p.id === activeProjectId) : null;
@@ -35,10 +33,8 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
       }
     };
     
-    // Add event listener
     document.addEventListener('processAgent', handleProcessEvent as EventListener);
     
-    // Clean up
     return () => {
       document.removeEventListener('processAgent', handleProcessEvent as EventListener);
     };
@@ -47,28 +43,12 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
   // Auto-complete workflow step when agent processing is done
   useEffect(() => {
     if (agent.status === "complete" && activeStep?.agentId === agent.id) {
-      // When this agent's processing completes and it's the active step, mark the step as completed
-      dispatch(completeStep({ stepId: activeStep.id }));
+      // Only auto-complete non-certification steps
+      if (!isCertificationStep) {
+        dispatch(completeStep({ stepId: activeStep.id }));
+      }
     }
-  }, [agent.status, activeStep, dispatch]);
-  
-  const handleCopy = () => {
-    if (agent.currentOutput) {
-      setCopyContent(agent.currentOutput, agent.id);
-      
-      // Show guidance toast
-      dispatch(showToast({ 
-        type: "success", 
-        message: "Content copied! Now paste it to the next agent." 
-      }));
-    }
-  };
-  
-  const handlePaste = () => {
-    if (content && sourceId !== agent.id) {
-      dispatch(setInput({ agentId: agent.id, input: content }));
-    }
-  };
+  }, [agent.status, activeStep, dispatch, isCertificationStep]);
   
   const handleProcess = async () => {
     if (agent.status === "processing" || !agent.currentInput.trim()) {
@@ -104,6 +84,11 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
   const handleCertifyCode = () => {
     if (!activeProject) return;
     
+    // Mark the certification step as completed
+    if (activeStep?.id === "step-certification") {
+      dispatch(completeStep({ stepId: activeStep.id }));
+    }
+    
     // For demo, always mark as successful
     const success = true;
     dispatch(completeProject({ projectId: activeProject.id, success }));
@@ -112,40 +97,18 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
     dispatch(showCompletionDialog({ project: { ...activeProject, success } }));
   };
   
-  // Calculate copy/paste button states
-  const canCopy = agent.currentOutput && agent.status === "complete";
-  const canPaste = !!content && sourceId !== agent.id;
-  
-  // Only show the "Certify Code" button on the final step when completed
-  const showCertifyButton = isFinalStep && 
+  // Only show the "Certify Code" button on the certification step
+  const showCertifyButton = isCertificationStep && 
                             agent.status === "complete" && 
-                            agent.currentOutput && 
                             activeStep?.agentId === agent.id;
   
   return (
     <div className="agent-interface flex flex-col h-full">
-      <div className="agent-actions flex justify-end space-x-2 mb-4">
-        <button
-          className={`px-3 py-1 rounded text-sm ${canPaste ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
-          onClick={handlePaste}
-          disabled={!canPaste}
-        >
-          Paste
-        </button>
-        <button
-          className={`px-3 py-1 rounded text-sm ${canCopy ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
-          onClick={handleCopy}
-          disabled={!canCopy}
-        >
-          Copy
-        </button>
-      </div>
-      
       {children}
       
       {showCertifyButton && (
         <div className="mt-4 bg-green-900/30 border border-green-700 rounded-md p-3 text-center">
-          <p className="text-sm text-green-300 mb-2">Code generation complete. Please review the code and certify if it meets requirements.</p>
+          <p className="text-sm text-green-300 mb-2">Review the code and certify if it meets requirements.</p>
           <button 
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium"
             onClick={handleCertifyCode}
