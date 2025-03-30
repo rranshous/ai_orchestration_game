@@ -45,8 +45,8 @@ const Workspace: React.FC = () => {
         )}
       </div>
       
-      {/* Toasts */}
-      <div className="toast-container fixed bottom-4 right-4 space-y-2 z-50">
+      {/* Toasts - Moved to bottom left to avoid obscuring notifications panel */}
+      <div className="toast-container fixed bottom-4 left-4 space-y-2 z-50">
         {toasts.map(toast => (
           <Toast 
             key={toast.id} 

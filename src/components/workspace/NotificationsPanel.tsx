@@ -28,7 +28,8 @@ const NotificationsPanel: React.FC = () => {
       {activeProject && (
         <div className="active-project mb-4 p-3 bg-blue-900/30 border border-blue-700 rounded">
           <p className="text-sm font-medium">Active Project: {activeProject.name}</p>
-          <p className="text-xs text-gray-400 mt-1">Follow the workflow to complete this project</p>
+          <p className="text-xs text-gray-400 mt-1">{activeProject.description}</p>
+          <p className="text-xs text-blue-300 mt-2 italic">Follow the workflow in the Documentation Panel to complete this project</p>
         </div>
       )}
       

@@ -3,6 +3,7 @@ import { useAppSelector, useAppDispatch } from '../../state/hooks';
 import { createProject, startProject } from '../../state/reducers/projectReducer';
 import { resetWorkflow } from '../../state/reducers/workflowReducer';
 import { showToast } from '../../state/reducers/notificationReducer';
+import { setInput } from '../../state/reducers/agentReducer';
 import ProjectCard from './ProjectCard';
 
 const ProjectSelector: React.FC = () => {
@@ -15,11 +16,21 @@ const ProjectSelector: React.FC = () => {
   };
   
   const handleStartProject = (projectId: string) => {
+    const selectedProject = projects.find(p => p.id === projectId);
+    if (!selectedProject) return;
+    
+    // Start the project
     dispatch(startProject({ projectId }));
     dispatch(resetWorkflow());
+    
+    // Automatically populate the Product Vision AI with the project details
+    const initialInput = `Project: ${selectedProject.name}\n\nDescription: ${selectedProject.description}\n\nAdd any additional requirements or details here...`;
+    dispatch(setInput({ agentId: 'product-vision', input: initialInput }));
+    
+    // Show toast notification
     dispatch(showToast({ 
       type: "success", 
-      message: "Project started! Follow the workflow to complete it."
+      message: "Project started! Enter requirements in Product Vision AI."
     }));
   };
   
