@@ -22,6 +22,14 @@ const defaultWorkflow: Workflow = {
       isCompleted: false,
       isActive: false,
     },
+    {
+      id: "step-certification",
+      agentId: "code-writer", // We're using the same agent for certification
+      name: "Code Certification",
+      description: "Review and certify the generated code",
+      isCompleted: false,
+      isActive: false,
+    }
   ],
 };
 

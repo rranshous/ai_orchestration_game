@@ -27,7 +27,7 @@ const DocumentationPanel: React.FC = () => {
   };
   
   return (
-    <div className="documentation-panel p-4 h-full flex flex-col">
+    <div className="documentation-panel p-4 h-full flex flex-col overflow-hidden">
       <h2 className="text-lg font-semibold mb-4">Workflow Documentation</h2>
       
       {activeProject && (
@@ -37,11 +37,11 @@ const DocumentationPanel: React.FC = () => {
         </div>
       )}
       
-      <div className="workflow-overview mb-6">
+      <div className="workflow-overview mb-4">
         <h3 className="text-md font-medium text-blue-400 mb-2">
           {workflow.name} - Progress
         </h3>
-        <div className="workflow-steps space-y-2">
+        <div className="workflow-steps space-y-3 overflow-y-auto">
           {workflow.steps.map((step, index) => (
             <div key={step.id} className="relative">
               <div 
@@ -62,17 +62,12 @@ const DocumentationPanel: React.FC = () => {
                   <span className="text-sm text-gray-400">{renderStepStatus(step)}</span>
                 </div>
               </div>
-              
-              {/* Connecting line to next step */}
-              {index < workflow.steps.length - 1 && (
-                <div className="h-6 w-1 bg-gray-700 mx-auto my-1"></div>
-              )}
             </div>
           ))}
         </div>
       </div>
       
-      <div className="current-step border-t border-gray-700 pt-4 flex-grow">
+      <div className="current-step border-t border-gray-700 pt-4 flex-grow overflow-y-auto">
         <h3 className="text-md font-medium text-blue-400 mb-2">Current Step: {activeStep.name}</h3>
         <p className="text-gray-300 mb-4">{activeStep.description}</p>
         

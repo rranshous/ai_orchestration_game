@@ -17,7 +17,7 @@ const NotificationsPanel: React.FC = () => {
   };
   
   return (
-    <div className="notifications-panel p-4 h-full flex flex-col">
+    <div className="notifications-panel p-4 h-full flex flex-col overflow-hidden">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Notifications</h2>
         <span className="bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full">

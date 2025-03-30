@@ -3,7 +3,6 @@ import { useAppSelector, useAppDispatch } from '../../state/hooks';
 import { createProject, startProject } from '../../state/reducers/projectReducer';
 import { resetWorkflow } from '../../state/reducers/workflowReducer';
 import { showToast } from '../../state/reducers/notificationReducer';
-import { setInput } from '../../state/reducers/agentReducer';
 import ProjectCard from './ProjectCard';
 
 const ProjectSelector: React.FC = () => {
@@ -12,7 +11,7 @@ const ProjectSelector: React.FC = () => {
   
   const handleCreateProject = () => {
     dispatch(createProject());
-    dispatch(showToast({ type: "info", message: "New project created!" }));
+    dispatch(showToast({ type: "info", message: "New project assigned to you!" }));
   };
   
   const handleStartProject = (projectId: string) => {
@@ -23,14 +22,10 @@ const ProjectSelector: React.FC = () => {
     dispatch(startProject({ projectId }));
     dispatch(resetWorkflow());
     
-    // Automatically populate the Product Vision AI with the project details
-    const initialInput = `Project: ${selectedProject.name}\n\nDescription: ${selectedProject.description}\n\nAdd any additional requirements or details here...`;
-    dispatch(setInput({ agentId: 'product-vision', input: initialInput }));
-    
-    // Show toast notification
+    // Show toast notification - changed guidance
     dispatch(showToast({ 
       type: "success", 
-      message: "Project started! Enter requirements in Product Vision AI."
+      message: "Project started! Check workflow documentation for next steps."
     }));
   };
   
@@ -46,7 +41,7 @@ const ProjectSelector: React.FC = () => {
           className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
           onClick={handleCreateProject}
         >
-          New Project
+          Pull More Work
         </button>
       </div>
       

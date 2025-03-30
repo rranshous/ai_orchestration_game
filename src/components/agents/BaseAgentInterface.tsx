@@ -19,8 +19,9 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
   // Get workflow and project information
   const workflow = useAppSelector(state => state.workflow.current);
   const activeStep = useAppSelector(state => workflow.steps.find(step => step.isActive));
-  const isActiveInWorkflow = activeStep?.agentId === agent.id;
-  const isLastStep = activeStep && workflow.steps.indexOf(activeStep) === workflow.steps.length - 1;
+  
+  // Check if this is the final step (certification step)
+  const isFinalStep = workflow.steps.findIndex(step => step.id === activeStep?.id) === workflow.steps.length - 1;
   const activeProject = useAppSelector(state => {
     const activeProjectId = state.projects.activeProjectId;
     return activeProjectId ? state.projects.projects.find(p => p.id === activeProjectId) : null;
@@ -45,24 +46,11 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
   
   // Auto-complete workflow step when agent processing is done
   useEffect(() => {
-    if (agent.status === "complete" && isActiveInWorkflow && activeStep) {
+    if (agent.status === "complete" && activeStep?.agentId === agent.id) {
       // When this agent's processing completes and it's the active step, mark the step as completed
       dispatch(completeStep({ stepId: activeStep.id }));
-      
-      // Show guidance toast
-      if (isLastStep) {
-        dispatch(showToast({ 
-          type: "success", 
-          message: "Code generated! Click 'Complete Project' to finish." 
-        }));
-      } else {
-        dispatch(showToast({ 
-          type: "info", 
-          message: "Use the Copy button to transfer output to the next agent." 
-        }));
-      }
     }
-  }, [agent.status, isActiveInWorkflow, activeStep, isLastStep, dispatch]);
+  }, [agent.status, activeStep, dispatch]);
   
   const handleCopy = () => {
     if (agent.currentOutput) {
@@ -112,8 +100,8 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
     }
   };
   
-  // Handle project completion
-  const handleCompleteProject = () => {
+  // Handle project certification
+  const handleCertifyCode = () => {
     if (!activeProject) return;
     
     // For demo, always mark as successful
@@ -128,8 +116,11 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
   const canCopy = agent.currentOutput && agent.status === "complete";
   const canPaste = !!content && sourceId !== agent.id;
   
-  // Show "Complete Project" button on the last step when completed
-  const showCompleteProjectButton = isLastStep && agent.status === "complete" && agent.currentOutput;
+  // Only show the "Certify Code" button on the final step when completed
+  const showCertifyButton = isFinalStep && 
+                            agent.status === "complete" && 
+                            agent.currentOutput && 
+                            activeStep?.agentId === agent.id;
   
   return (
     <div className="agent-interface flex flex-col h-full">
@@ -150,22 +141,16 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
         </button>
       </div>
       
-      {isActiveInWorkflow && (
-        <div className="bg-yellow-900/30 border border-yellow-700 rounded-md p-2 mb-3 text-sm">
-          ⚠️ This agent is active in the current workflow step. Complete its task to proceed.
-        </div>
-      )}
-      
       {children}
       
-      {showCompleteProjectButton && (
+      {showCertifyButton && (
         <div className="mt-4 bg-green-900/30 border border-green-700 rounded-md p-3 text-center">
-          <p className="text-sm text-green-300 mb-2">All steps completed! You can now finish the project.</p>
+          <p className="text-sm text-green-300 mb-2">Code generation complete. Please review the code and certify if it meets requirements.</p>
           <button 
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium"
-            onClick={handleCompleteProject}
+            onClick={handleCertifyCode}
           >
-            Complete Project
+            Certify Code
           </button>
         </div>
       )}

@@ -16,8 +16,8 @@ const ProductVisionInterface: React.FC<ProductVisionInterfaceProps> = ({ agent }
   
   return (
     <BaseAgentInterface agent={agent}>
-      <div className="flex flex-col h-full">
-        <div className="flex-grow">
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="mb-4">
           <label className="block text-sm font-medium text-gray-300 mb-1">Project Description</label>
           <textarea 
             className="w-full h-40 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
@@ -28,7 +28,7 @@ const ProductVisionInterface: React.FC<ProductVisionInterfaceProps> = ({ agent }
           />
         </div>
         
-        <div className="mt-4">
+        <div className="flex-grow overflow-auto">
           <label className="block text-sm font-medium text-gray-300 mb-1">Generated Specifications</label>
           <div className="w-full h-48 bg-gray-700 border border-gray-600 rounded p-3 overflow-auto">
             {agent.currentOutput ? (

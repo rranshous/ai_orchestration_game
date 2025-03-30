@@ -19,24 +19,15 @@ const AgentPanel: React.FC<AgentPanelProps> = ({ id, title, agentId }) => {
     return <div>Agent not found</div>;
   }
   
-  const handlePanelClick = () => {
-    dispatch(setActiveAgent(agentId));
-  };
-  
-  const isActive = activeAgentId === agentId;
-  
   return (
     <div 
       className={`
         agent-panel bg-gray-900 rounded-lg shadow-lg overflow-hidden
         h-full flex flex-col
-        ${isActive ? 'ring-2 ring-blue-500' : ''}
-        cursor-pointer
       `}
-      onClick={handlePanelClick}
     >
       <div className="agent-header bg-gray-800 p-3 border-b border-gray-700 flex justify-between items-center">
-        <h2 className="font-semibold text-lg">{title}</h2>
+        <div className="font-semibold text-lg">{title}</div>
         <div className="text-xs px-2 py-1 rounded-full bg-gray-700">
           {agent.status === "idle" ? "Ready" : 
            agent.status === "processing" ? "Working" :
