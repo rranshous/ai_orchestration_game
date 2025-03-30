@@ -88,7 +88,14 @@ const projectSlice = createSlice({
       const project = state.projects.find(p => p.id === action.payload.projectId);
       if (project) {
         project.status = ProjectStatus.IN_PROGRESS;
-        project.startTime = Date.now();
+        
+        // Only set startTime if it's a new project, not an abandoned one being resumed
+        if (!project.startTime) {
+          project.startTime = Date.now();
+        }
+        
+        // Clear the abandoned flag if it was previously abandoned
+        project.abandoned = false;
       }
     },
     

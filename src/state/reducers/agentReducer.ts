@@ -44,6 +44,17 @@ const initialState: AiAgent[] = [
     currentOutput: '',
     status: 'idle',
     processingTime: PROCESSING_TIMES[AgentType.CODE_WRITER],
+  },
+  {
+    id: 'verification-ai',
+    name: 'Verification AI',
+    type: AgentType.VERIFICATION_AI,
+    description: 'Analyzes code quality and verifies implementation against requirements',
+    icon: '/icons/verification-ai.svg',
+    currentInput: '',
+    currentOutput: '',
+    status: 'idle',
+    processingTime: PROCESSING_TIMES[AgentType.VERIFICATION_AI],
   }
 ];
 

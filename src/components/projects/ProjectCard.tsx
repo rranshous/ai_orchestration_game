@@ -60,10 +60,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className="text-sm text-gray-400 mb-3">{project.description}</div>
       
       <div className="flex justify-between items-center">
-        {(project.status === ProjectStatus.IN_PROGRESS || project.completed) && (
+        {(project.status === ProjectStatus.IN_PROGRESS || 
+          project.status === ProjectStatus.ABANDONED || 
+          project.completed) && (
           <ProjectTimer 
-            startTime={project.startTime || 0} 
-            isActive={project.status === ProjectStatus.IN_PROGRESS} 
+            startTime={project.startTime || 0}
+            endTime={project.endTime}
+            status={project.status}
           />
         )}
         

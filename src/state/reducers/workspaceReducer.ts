@@ -22,6 +22,7 @@ const initialState: WorkspaceState = {
     agentPanels: [
       { id: 'panel-product-vision', agentId: 'product-vision', title: 'Product Vision AI' },
       { id: 'panel-code-writer', agentId: 'code-writer', title: 'Code Writer AI' },
+      { id: 'panel-verification', agentId: 'verification-ai', title: 'Verification AI' },
     ],
     documentationPanel: {
       visible: true,

@@ -4,6 +4,7 @@ import Workspace from './components/workspace/Workspace';
 import HelpDialog from './components/feedback/HelpDialog';
 import { useAppSelector, useAppDispatch } from './state/hooks';
 import { hide } from './state/reducers/helpReducer';
+import { startBossMessages, stopBossMessages } from './state/reducers/bossReducer';
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -22,6 +23,14 @@ const App: React.FC = () => {
         console.error('Error loading saved game:', error);
       }
     }
+
+    // Initialize boss messages
+    dispatch(startBossMessages());
+    
+    // Clean up on unmount
+    return () => {
+      dispatch(stopBossMessages());
+    };
   }, [dispatch]);
 
   return (

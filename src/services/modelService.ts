@@ -18,7 +18,8 @@ export enum BossMessageType {
 class ModelService {
   private baseUrl: string;
   private defaultModel: string;
-  private fallbackToMock = true; // Use mock responses if API fails
+  // Fixed unused variable by using it in the generateAgentResponse method
+  private fallbackToMock = false; // Set to false to use real API calls
 
   constructor() {
     this.baseUrl = 'http://localhost:11434/api';
@@ -27,11 +28,16 @@ class ModelService {
 
   async generateAgentResponse(type: AgentType, input: string, context?: Record<string, any>): Promise<string> {
     try {
-      // Use fallbackToMock flag here
-      if (!this.fallbackToMock && this.baseUrl) {
-        // Enhance prompt with context
-        const enhancedPrompt = this.buildAgentPrompt(type, input, context);
-        
+      // Use the fallbackToMock flag to determine whether to immediately return mock responses
+      if (this.fallbackToMock) {
+        return this.getMockResponse(type);
+      }
+      
+      // Always try to call the API first
+      // Enhance prompt with context
+      const enhancedPrompt = this.buildAgentPrompt(type, input, context);
+      
+      try {
         // Call the Ollama API
         const response = await this.callModel({
           model: this.defaultModel,
@@ -44,10 +50,11 @@ class ModelService {
         }
         
         return response;
+      } catch (error) {
+        console.error('Model API error:', error);
+        // Fall back to mock responses only if API call fails
+        return this.getMockResponse(type);
       }
-      
-      // Default to mock responses
-      return this.getMockResponse(type);
     } catch (error) {
       console.error('Model generation error:', error);
       return this.getMockResponse(type);

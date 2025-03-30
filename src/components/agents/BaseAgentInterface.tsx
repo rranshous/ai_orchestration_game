@@ -1,10 +1,10 @@
 import React, { ReactNode, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { AiAgent, startProcessing, completeProcessing, setError } from '../../state/reducers/agentReducer';
-import { delay } from '../../utils/helpers';
 import { completeStep } from '../../state/reducers/workflowReducer';
 import { showCompletionDialog } from '../../state/reducers/notificationReducer';
 import { completeProject } from '../../state/reducers/projectReducer';
+import modelService from '../../services/modelService';
 
 interface BaseAgentProps {
   agent: AiAgent;
@@ -58,17 +58,21 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
     dispatch(startProcessing({ agentId: agent.id }));
     
     try {
-      // Simulate processing time
-      await delay(agent.processingTime);
+      // Get the active project context
+      const activeProject = useAppSelector(state => {
+        const activeProjectId = state.projects.activeProjectId;
+        return activeProjectId ? state.projects.projects.find(p => p.id === activeProjectId) : null;
+      });
       
-      // Generate response based on agent type
-      let output = "";
-      
-      if (agent.type === "product_vision") {
-        output = `REQUIREMENTS:\n- User authentication functionality\n- Dashboard for data visualization\n- Export capabilities for reports\n\nFEATURES:\n- Login/logout system\n- Interactive charts\n- PDF and CSV export options\n\nNON-FUNCTIONAL REQUIREMENTS:\n- Response time under 2 seconds\n- Mobile-friendly interface\n- GDPR compliance`;
-      } else if (agent.type === "code_writer") {
-        output = `function createAuthSystem() {\n  // Authentication system implementation\n  class AuthService {\n    constructor() {\n      this.isLoggedIn = false;\n    }\n    \n    login(username, password) {\n      // Implementation here\n      this.isLoggedIn = true;\n      return true;\n    }\n    \n    logout() {\n      this.isLoggedIn = false;\n    }\n  }\n  \n  return new AuthService();\n}`;
-      }
+      // Generate response using model service
+      const output = await modelService.generateAgentResponse(
+        agent.type, 
+        agent.currentInput,
+        {
+          projectName: activeProject?.name,
+          projectDescription: activeProject?.description
+        }
+      );
       
       dispatch(completeProcessing({ agentId: agent.id, output }));
     } catch (error) {

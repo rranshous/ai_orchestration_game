@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../state/hooks';
-import { createProject, startProject, startAutoAssignProjects, stopAutoAssignProjects } from '../../state/reducers/projectReducer';
+import { startProject, startAutoAssignProjects, stopAutoAssignProjects } from '../../state/reducers/projectReducer';
 import { resetWorkflow } from '../../state/reducers/workflowReducer';
 import { showToast } from '../../state/reducers/notificationReducer';
 import ProjectCard from './ProjectCard';
@@ -18,11 +18,6 @@ const ProjectSelector: React.FC = () => {
       dispatch(stopAutoAssignProjects());
     };
   }, [dispatch]);
-  
-  const handlePullWork = () => {
-    dispatch(createProject());
-    dispatch(showToast({ type: "info", message: "New project assigned to you!" }));
-  };
   
   const handleStartProject = (projectId: string) => {
     const selectedProject = projects.find(p => p.id === projectId);
@@ -57,12 +52,7 @@ const ProjectSelector: React.FC = () => {
     <div className="project-selector p-4 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Projects</h2>
-        <button 
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-          onClick={handlePullWork}
-        >
-          Pull More Work
-        </button>
+        <span className="text-sm text-gray-400">Auto-assigned</span>
       </div>
       
       <div className="project-list flex-grow overflow-auto space-y-3">

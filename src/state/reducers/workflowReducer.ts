@@ -23,10 +23,18 @@ const defaultWorkflow: Workflow = {
       isActive: false,
     },
     {
+      id: "step-verification",
+      agentId: "verification-ai",
+      name: "Code Verification",
+      description: "Verify the generated code meets requirements and quality standards",
+      isCompleted: false,
+      isActive: false,
+    },
+    {
       id: "step-certification",
-      agentId: "code-writer", // We're using the same agent for certification
+      agentId: "code-writer", // We're still using the same agent UI for certification
       name: "Code Certification",
-      description: "Review and certify the generated code",
+      description: "REVIEW AND ATTEST that the code meets ALL requirements",
       isCompleted: false,
       isActive: false,
     }

@@ -5,6 +5,7 @@ import projectReducer from './reducers/projectReducer';
 import workflowReducer from './reducers/workflowReducer';
 import notificationReducer from './reducers/notificationReducer';
 import helpReducer from './reducers/helpReducer';
+import bossReducer from './reducers/bossReducer';
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     workflow: workflowReducer,
     notifications: notificationReducer,
     help: helpReducer,
+    boss: bossReducer,
   },
 });
 
