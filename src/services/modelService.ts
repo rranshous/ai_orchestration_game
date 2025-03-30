@@ -18,23 +18,42 @@ export enum BossMessageType {
 class ModelService {
   private baseUrl: string;
   private defaultModel: string;
-  // Fixed unused variable by using it in the generateAgentResponse method
-  private fallbackToMock = false; // Set to false to use real API calls
+  private fallbackToMock = true; // Set to true to use mock responses by default
 
   constructor() {
     this.baseUrl = 'http://localhost:11434/api';
     this.defaultModel = 'llama3';
+    
+    // Immediately check if the API is available
+    this.checkApiAvailability();
+  }
+  
+  // Check if Ollama API is available
+  private async checkApiAvailability(): Promise<void> {
+    try {
+      const response = await fetch(`${this.baseUrl}/models`, { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        console.log('Ollama API is available');
+        this.fallbackToMock = false; // Use real API if available
+      } else {
+        console.warn('Ollama API returned non-200 status, falling back to mock responses');
+      }
+    } catch (error) {
+      console.warn('Ollama API is not available, falling back to mock responses:', error);
+    }
   }
 
   async generateAgentResponse(type: AgentType, input: string, context?: Record<string, any>): Promise<string> {
+    // If fallbackToMock is true, use mock responses
+    if (this.fallbackToMock) {
+      return this.getMockResponse(type);
+    }
+    
     try {
-      // Use the fallbackToMock flag to determine whether to immediately return mock responses
-      if (this.fallbackToMock) {
-        return this.getMockResponse(type);
-      }
-      
-      // Always try to call the API first
-      // Enhance prompt with context
       const enhancedPrompt = this.buildAgentPrompt(type, input, context);
       
       try {
@@ -52,7 +71,6 @@ class ModelService {
         return response;
       } catch (error) {
         console.error('Model API error:', error);
-        // Fall back to mock responses only if API call fails
         return this.getMockResponse(type);
       }
     } catch (error) {

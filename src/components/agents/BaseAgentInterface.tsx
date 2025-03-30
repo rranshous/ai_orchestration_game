@@ -17,13 +17,13 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
   // Get workflow and project information
   const workflow = useAppSelector(state => state.workflow.current);
   const activeStep = useAppSelector(() => workflow.steps.find(step => step.isActive));
-  
-  // Check if this is the final step (certification step)
-  const isCertificationStep = activeStep?.id === "step-certification";
   const activeProject = useAppSelector(state => {
     const activeProjectId = state.projects.activeProjectId;
     return activeProjectId ? state.projects.projects.find(p => p.id === activeProjectId) : null;
   });
+  
+  // Check if this is the final step (certification step)
+  const isCertificationStep = activeStep?.id === "step-certification";
   
   // Add event listener for processing
   useEffect(() => {
@@ -58,13 +58,7 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
     dispatch(startProcessing({ agentId: agent.id }));
     
     try {
-      // Get the active project context
-      const activeProject = useAppSelector(state => {
-        const activeProjectId = state.projects.activeProjectId;
-        return activeProjectId ? state.projects.projects.find(p => p.id === activeProjectId) : null;
-      });
-      
-      // Generate response using model service
+      // Using the activeProject from the component scope instead of using a hook inside this function
       const output = await modelService.generateAgentResponse(
         agent.type, 
         agent.currentInput,

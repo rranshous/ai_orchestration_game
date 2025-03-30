@@ -17,11 +17,16 @@ const notificationSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    showToast: (state, action: PayloadAction<{ type: "info" | "success" | "error", message: string }>) => {
+    showToast: (state, action: PayloadAction<{ 
+      type: "info" | "success" | "error", 
+      message: string,
+      duration?: number 
+    }>) => {
       state.toasts.push({
         id: generateId(),
         type: action.payload.type,
         message: action.payload.message,
+        duration: action.payload.duration,
       });
     },
     

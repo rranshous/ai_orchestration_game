@@ -6,11 +6,15 @@ import { delay } from '../../utils/helpers';
 export interface BossState {
   lastMessageTime: number;
   messageTimer: number | null;
+  latestMessage: string | null;
+  latestMessageType: BossMessageType | null;
 }
 
 const initialState: BossState = {
   lastMessageTime: 0,
   messageTimer: null,
+  latestMessage: null,
+  latestMessageType: null,
 };
 
 const bossSlice = createSlice({
@@ -23,10 +27,14 @@ const bossSlice = createSlice({
     setMessageTimer: (state, action: PayloadAction<number | null>) => {
       state.messageTimer = action.payload;
     },
+    setLatestMessage: (state, action: PayloadAction<{ message: string; messageType: BossMessageType }>) => {
+      state.latestMessage = action.payload.message;
+      state.latestMessageType = action.payload.messageType;
+    },
   },
 });
 
-export const { setLastMessageTime, setMessageTimer } = bossSlice.actions;
+export const { setLastMessageTime, setMessageTimer, setLatestMessage } = bossSlice.actions;
 
 // Thunk to start sending periodic boss messages
 export const startBossMessages = () => async (dispatch: any) => { // Removed unused getState parameter
@@ -86,10 +94,17 @@ export const sendBossMessage = () => async (dispatch: any, getState: any) => {
       }
     );
     
-    // Display as toast
+    // Display as toast with longer duration (10 seconds instead of 5)
     dispatch(showToast({ 
       type: "info", 
-      message: `📱 BOSS: ${message}`
+      message: `📱 BOSS: ${message}`,
+      duration: 10000 // 10 seconds
+    }));
+    
+    // Store the latest message
+    dispatch(setLatestMessage({ 
+      message: message,
+      messageType: messageType
     }));
     
     // Update last message time

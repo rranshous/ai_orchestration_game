@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../state/hooks';
 import { hideToast } from '../../state/reducers/notificationReducer';
+import { BossMessageType } from '../../services/modelService';
 
 const NotificationsPanel: React.FC = () => {
   const toasts = useAppSelector(state => state.notifications.toasts);
@@ -10,6 +11,8 @@ const NotificationsPanel: React.FC = () => {
       ? state.projects.projects.find(p => p.id === activeProjectId) 
       : null;
   });
+  const latestBossMessage = useAppSelector(state => state.boss.latestMessage);
+  const latestBossMessageType = useAppSelector(state => state.boss.latestMessageType);
   const dispatch = useAppDispatch();
   
   const handleDismiss = (id: string) => {
@@ -21,7 +24,7 @@ const NotificationsPanel: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Notifications</h2>
         <span className="bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full">
-          {toasts.length}
+          {toasts.length + (latestBossMessage ? 1 : 0)}
         </span>
       </div>
       
@@ -30,6 +33,17 @@ const NotificationsPanel: React.FC = () => {
           <p className="text-sm font-medium">Active Project: {activeProject.name}</p>
           <p className="text-xs text-gray-400 mt-1">{activeProject.description}</p>
           <p className="text-xs text-blue-300 mt-2 italic">Follow the workflow in the Documentation Panel to complete this project</p>
+        </div>
+      )}
+      
+      {/* Latest Boss Message with yellow highlight */}
+      {latestBossMessage && (
+        <div className="boss-message mb-4 p-3 bg-yellow-800/30 border border-yellow-600 rounded">
+          <div className="flex justify-between">
+            <p className="font-medium text-yellow-300 text-sm">Message from Boss:</p>
+            <p className="text-xs text-yellow-300">{getMessageTypeText(latestBossMessageType)}</p>
+          </div>
+          <p className="text-sm text-white mt-1">{latestBossMessage}</p>
         </div>
       )}
       
@@ -78,5 +92,16 @@ const NotificationsPanel: React.FC = () => {
     </div>
   );
 };
+
+// Helper function to get descriptive text for message type
+function getMessageTypeText(messageType: BossMessageType | null): string {
+  switch (messageType) {
+    case 'praise': return 'Performance Review';
+    case 'criticism': return 'Feedback';
+    case 'urgent': return 'URGENT';
+    case 'neutral': return 'Announcement';
+    default: return '';
+  }
+}
 
 export default NotificationsPanel;

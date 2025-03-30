@@ -11,13 +11,15 @@ const Toast: React.FC<ToastProps> = ({
   onClose,
 }) => {
   useEffect(() => {
-    // Auto-dismiss after 5 seconds
+    // Use custom duration if provided, otherwise default to 5 seconds
+    const duration = notification.duration || 5000;
+    
     const timer = setTimeout(() => {
       onClose();
-    }, 5000);
+    }, duration);
     
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [onClose, notification.duration]);
   
   // Color based on notification type
   let bgColor = "bg-blue-700";
