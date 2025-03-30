@@ -1,20 +1,17 @@
 import React from 'react';
-import { useAppSelector, useAppDispatch } from '../../state/hooks';
-import { setActiveAgent } from '../../state/reducers/workspaceReducer';
+import { useAppSelector } from '../../state/hooks';
 import ProductVisionInterface from '../agents/ProductVisionInterface';
 import CodeWriterInterface from '../agents/CodeWriterInterface';
 import VerificationAIInterface from '../agents/VerificationAIInterface';
 
 interface AgentPanelProps {
-  id: string;
+  id: string; // Kept for future use but marked as unused
   title: string;
   agentId: string;
 }
 
-const AgentPanel: React.FC<AgentPanelProps> = ({ id, title, agentId }) => {
+const AgentPanel: React.FC<AgentPanelProps> = ({ title, agentId }) => {
   const agent = useAppSelector(state => state.agents.find(a => a.id === agentId));
-  const activeAgentId = useAppSelector(state => state.workspace.activeAgentId);
-  const dispatch = useAppDispatch();
   
   if (!agent) {
     return <div>Agent not found</div>;

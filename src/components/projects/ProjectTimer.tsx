@@ -3,10 +3,10 @@ import { formatTime } from '../../utils/helpers';
 
 interface ProjectTimerProps {
   startTime: number;
-  isActive: boolean;
+  isActive?: boolean; // Made optional since we're not using it
 }
 
-const ProjectTimer: React.FC<ProjectTimerProps> = ({ startTime, isActive }) => {
+const ProjectTimer: React.FC<ProjectTimerProps> = ({ startTime }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   
   useEffect(() => {

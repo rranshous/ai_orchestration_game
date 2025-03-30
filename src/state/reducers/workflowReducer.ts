@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Workflow, WorkflowStep } from '../../types/workflow';
+import { Workflow } from '../../types/workflow';
 
 // Default workflow for the MVP
 const defaultWorkflow: Workflow = {
@@ -54,7 +54,7 @@ const workflowSlice = createSlice({
         : null;
       
       // Mark current step as completed and activate next step if available
-      state.current.steps = state.current.steps.map((step, index) => ({
+      state.current.steps = state.current.steps.map((step) => ({
         ...step,
         isCompleted: step.isCompleted || step.id === action.payload.stepId,
         isActive: nextStepId ? step.id === nextStepId : false
@@ -66,10 +66,10 @@ const workflowSlice = createSlice({
     
     resetWorkflow: (state) => {
       // Reset to initial state
-      state.current.steps = state.current.steps.map((step, index) => ({
+      state.current.steps = state.current.steps.map((step) => ({
         ...step,
         isCompleted: false,
-        isActive: index === 0,
+        isActive: step.id === state.current.steps[0].id,
       }));
       
       state.activeStepId = state.current.steps[0].id;

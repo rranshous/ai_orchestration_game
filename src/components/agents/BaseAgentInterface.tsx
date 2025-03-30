@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { AiAgent, setInput, startProcessing, completeProcessing, setError } from '../../state/reducers/agentReducer';
+import { AiAgent, startProcessing, completeProcessing, setError } from '../../state/reducers/agentReducer';
 import { delay } from '../../utils/helpers';
 import { completeStep } from '../../state/reducers/workflowReducer';
 import { showCompletionDialog } from '../../state/reducers/notificationReducer';
@@ -16,7 +16,7 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
   
   // Get workflow and project information
   const workflow = useAppSelector(state => state.workflow.current);
-  const activeStep = useAppSelector(state => workflow.steps.find(step => step.isActive));
+  const activeStep = useAppSelector(() => workflow.steps.find(step => step.isActive));
   
   // Check if this is the final step (certification step)
   const isCertificationStep = activeStep?.id === "step-certification";

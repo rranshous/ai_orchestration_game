@@ -15,8 +15,8 @@ const App: React.FC = () => {
     const savedGame = localStorage.getItem('aiOrchestrator_saveGame');
     if (savedGame) {
       try {
-        const gameState = JSON.parse(savedGame);
-        // Dispatch action to load saved game
+        // Note: commented out for now until we implement loading saved games
+        // const gameState = JSON.parse(savedGame);
         // dispatch(loadSavedGame(gameState));
       } catch (error) {
         console.error('Error loading saved game:', error);

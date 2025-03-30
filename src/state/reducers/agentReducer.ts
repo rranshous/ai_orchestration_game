@@ -18,6 +18,8 @@ export interface AiAgent {
 export const PROCESSING_TIMES: Record<AgentType, number> = {
   [AgentType.PRODUCT_VISION]: 3000, // 3 seconds
   [AgentType.CODE_WRITER]: 5000,    // 5 seconds
+  [AgentType.VERIFICATION_AI]: 4000, // 4 seconds
+  [AgentType.BOSS]: 2000,            // 2 seconds
 };
 
 const initialState: AiAgent[] = [

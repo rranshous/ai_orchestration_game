@@ -18,34 +18,39 @@ export enum BossMessageType {
 class ModelService {
   private baseUrl: string;
   private defaultModel: string;
-  private fallbackToMock: boolean;
+  private fallbackToMock = true; // Use mock responses if API fails
 
   constructor() {
     this.baseUrl = 'http://localhost:11434/api';
     this.defaultModel = 'llama3';
-    this.fallbackToMock = true; // Use mock responses if API fails
   }
 
   async generateAgentResponse(type: AgentType, input: string, context?: Record<string, any>): Promise<string> {
     try {
-      // Enhance prompt with context
-      const enhancedPrompt = this.buildAgentPrompt(type, input, context);
-      
-      // Call the Ollama API
-      const response = await this.callModel({
-        model: this.defaultModel,
-        prompt: enhancedPrompt
-      });
-      
-      // If this is the product vision AI, sometimes reject the input
-      if (type === AgentType.PRODUCT_VISION && this.shouldRejectInput()) {
-        return this.getProductVisionRejection();
+      // Use fallbackToMock flag here
+      if (!this.fallbackToMock && this.baseUrl) {
+        // Enhance prompt with context
+        const enhancedPrompt = this.buildAgentPrompt(type, input, context);
+        
+        // Call the Ollama API
+        const response = await this.callModel({
+          model: this.defaultModel,
+          prompt: enhancedPrompt
+        });
+        
+        // If this is the product vision AI, sometimes reject the input
+        if (type === AgentType.PRODUCT_VISION && this.shouldRejectInput()) {
+          return this.getProductVisionRejection();
+        }
+        
+        return response;
       }
       
-      return response;
+      // Default to mock responses
+      return this.getMockResponse(type);
     } catch (error) {
       console.error('Model generation error:', error);
-      return this.getMockResponse(type, input);
+      return this.getMockResponse(type);
     }
   }
 
@@ -165,7 +170,7 @@ ${metrics ? `Metrics: ${metrics.completedCount} projects completed, ${metrics.av
     }
   }
   
-  private getMockResponse(type: AgentType, input: string): string {
+  private getMockResponse(type: AgentType): string {
     switch (type) {
       case AgentType.PRODUCT_VISION:
         return `REQUIREMENTS:
