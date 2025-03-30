@@ -1,5 +1,9 @@
 # Context
 
+## Game
+
+This work is for a game. It is a satirical simulation of what being a "software developer" may be like in the future.
+
 ## MVP
 
 The MVP works great, but is flat. The mechanics are working but the content is static and the narrative missing.
@@ -33,7 +37,7 @@ The next version will be version two
 - make work harder
   - make the responses the user must copy and paste longer
   - add additional steps to the workflow where a Verification AI which must check the code before the user can certify it
-  - make the work more opaque by having the code be generated in esoteric programming language "brainfuck".
+  - make the work more opaque by having the code be generated in an esoteric programming language
   - make the product vision AI agent more ornery, often rejecting requests for lacking "vision" or specificity.
 
 - more emphasis on the certification step
