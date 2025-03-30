@@ -3,6 +3,7 @@ import { useAppSelector, useAppDispatch } from '../../state/hooks';
 import { setActiveAgent } from '../../state/reducers/workspaceReducer';
 import ProductVisionInterface from '../agents/ProductVisionInterface';
 import CodeWriterInterface from '../agents/CodeWriterInterface';
+import VerificationAIInterface from '../agents/VerificationAIInterface';
 
 interface AgentPanelProps {
   id: string;
@@ -33,6 +34,7 @@ const AgentPanel: React.FC<AgentPanelProps> = ({ id, title, agentId }) => {
       <div className="agent-content flex-1 p-4 overflow-auto">
         {agentId === 'product-vision' && <ProductVisionInterface agent={agent} />}
         {agentId === 'code-writer' && <CodeWriterInterface agent={agent} />}
+        {agentId === 'verification-ai' && <VerificationAIInterface agent={agent} />}
       </div>
     </div>
   );
