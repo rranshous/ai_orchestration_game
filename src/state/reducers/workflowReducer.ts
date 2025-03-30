@@ -57,9 +57,10 @@ const workflowSlice = createSlice({
       state.current.steps = state.current.steps.map((step, index) => ({
         ...step,
         isCompleted: step.isCompleted || step.id === action.payload.stepId,
-        isActive: index === currentIndex + 1, // Activate next step
+        isActive: nextStepId ? step.id === nextStepId : false
       }));
       
+      // Update the activeStepId to the next step
       state.activeStepId = nextStepId;
     },
     

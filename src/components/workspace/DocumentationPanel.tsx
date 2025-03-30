@@ -17,7 +17,7 @@ const DocumentationPanel: React.FC = () => {
   
   // Find the active agent based on the active step
   const activeAgent = useAppSelector(
-    state => state.agents.find(a => a.id === activeStep.agentId)
+    state => state.agents.find(a => a.id === activeStep?.agentId)
   );
   
   const renderStepStatus = (step: WorkflowStep) => {
@@ -64,37 +64,38 @@ const DocumentationPanel: React.FC = () => {
                     <span className="text-sm text-gray-400">{renderStepStatus(step)}</span>
                   </div>
                 </div>
-                {/* Removed vertical connecting line as requested */}
               </div>
             ))}
           </div>
         </div>
         
-        <div className="current-step border-t border-gray-700 pt-4">
-          <h3 className="text-md font-medium text-blue-400 mb-2">Current Step: {activeStep.name}</h3>
-          <p className="text-gray-300 mb-4">{activeStep.description}</p>
-          
-          {activeAgent && (
-            <div className="agent-instructions mt-4">
-              <h4 className="text-sm font-medium text-gray-300">Using {activeAgent.name}</h4>
-              <p className="text-sm text-gray-400 mt-1">{activeAgent.description}</p>
-              
-              <div className="mt-4 p-3 bg-gray-800 rounded">
-                <p className="text-sm text-gray-300">
-                  {activeAgent.type === "product_vision" ? (
-                    "1. View the project description above.\n2. Add some made-up requirements to the AI.\n3. Click 'Generate Specifications' to create detailed specs.\n4. Use your clipboard to copy the output for the next step."
-                  ) : activeAgent.type === "code_writer" ? (
-                    activeStep.id === "step-certification" ? 
-                    "1. Review the generated code for quality and correctness.\n2. Click 'Certify Code' if the code meets the requirements." :
-                    "1. Paste in the specifications from the Product Vision AI.\n2. Click 'Generate Code' to create the implementation."
-                  ) : (
-                    "Follow the instructions for this agent to complete the workflow step."
-                  )}
-                </p>
+        {activeStep && (
+          <div className="current-step border-t border-gray-700 pt-4">
+            <h3 className="text-md font-medium text-blue-400 mb-2">Current Step: {activeStep.name}</h3>
+            <p className="text-gray-300 mb-4">{activeStep.description}</p>
+            
+            {activeAgent && (
+              <div className="agent-instructions mt-4">
+                <h4 className="text-sm font-medium text-gray-300">Using {activeAgent.name}</h4>
+                <p className="text-sm text-gray-400 mt-1">{activeAgent.description}</p>
+                
+                <div className="mt-4 p-3 bg-gray-800 rounded">
+                  <p className="text-sm text-gray-300">
+                    {activeAgent.type === "product_vision" ? (
+                      "1. Review the project description provided above.\n2. Formulate comprehensive technical requirements based on the project needs.\n3. Click 'Generate Specifications' to create detailed specifications document.\n4. Use your system clipboard to copy the generated specifications."
+                    ) : activeAgent.type === "code_writer" ? (
+                      activeStep.id === "step-certification" ? 
+                      "1. Review the generated code implementation for correctness and quality.\n2. Verify that all requirements have been implemented according to specifications.\n3. Click 'Certify Code' when you've confirmed the code meets all requirements." :
+                      "1. Paste the technical specifications from the previous step.\n2. Click 'Generate Code' to create the implementation.\n3. Once generated, the code will need to be reviewed in the certification step."
+                    ) : (
+                      "Please refer to the workflow documentation for guidance on this step."
+                    )}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

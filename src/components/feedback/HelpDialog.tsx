@@ -24,39 +24,33 @@ const HelpDialog: React.FC<HelpDialogProps> = ({
           <div>
             <h3 className="text-lg font-semibold mb-2">Welcome to AI Orchestrator</h3>
             <p className="text-gray-300">
-              In this game, you manage the flow of information between AI agents to develop software.
-              You act as the human middleware in an AI-driven development process.
+              In this simulation, you are an enterprise software operator responsible for coordinating AI agents to complete development projects efficiently.
             </p>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-2">Basic Gameplay</h3>
+            <h3 className="text-lg font-semibold mb-2">Basic Workflow</h3>
             <ol className="list-decimal pl-5 text-gray-300 space-y-2">
-              <li>Start a project from the project list</li>
-              <li>Enter requirements in the Product Vision AI</li>
-              <li>Click "Generate Specifications" to get output</li>
-              <li>Copy the output using your clipboard (Ctrl+C/Cmd+C)</li>
-              <li>Navigate to the Code Writer AI</li>
-              <li>Paste the specifications (Ctrl+V/Cmd+V)</li>
-              <li>Click "Generate Code" to create the implementation</li>
-              <li>Review and certify the generated code</li>
-              <li>Complete the project</li>
+              <li>Select an available project from your queue</li>
+              <li>Follow the development workflow steps sequentially</li>
+              <li>For each step, use the appropriate AI system to process information</li>
+              <li>Transfer data between systems as needed</li>
+              <li>Complete all workflow steps to finish the project</li>
             </ol>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-2">Controls</h3>
+            <h3 className="text-lg font-semibold mb-2">Available AI Systems</h3>
             <ul className="list-disc pl-5 text-gray-300 space-y-2">
-              <li><strong>Next/Previous Agent</strong>: Switch between AI agent panels</li>
-              <li><strong>Generate Button</strong>: Tells the AI to process input</li>
-              <li><strong>Certify Button</strong>: Approves the final code output</li>
+              <li><strong>Product Vision AI:</strong> Converts business requirements into technical specifications</li>
+              <li><strong>Code Writer AI:</strong> Generates code implementation from specifications</li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-2">Workflow</h3>
+            <h3 className="text-lg font-semibold mb-2">Navigation & Controls</h3>
             <p className="text-gray-300">
-              Follow the workflow steps shown in the Documentation panel. Each step requires you to use the corresponding AI agent to complete that phase of the project.
+              Use the navigation buttons to switch between different AI systems. The workflow documentation panel will guide you through each step of the development process.
             </p>
           </div>
         </div>
@@ -66,7 +60,7 @@ const HelpDialog: React.FC<HelpDialogProps> = ({
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
             onClick={onClose}
           >
-            Got it!
+            Begin Work
           </button>
         </div>
       </div>

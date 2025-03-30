@@ -58,26 +58,23 @@ const Workspace: React.FC = () => {
         </div>
       </div>
       
-      {/* Changed layout: Split the right panel into two columns */}
-      <div className="col-span-4 row-span-6 grid grid-cols-1 grid-rows-2 gap-4">
-        {/* Top section: Projects and Documentation */}
-        <div className="row-span-1 flex flex-col space-y-4">
-          {/* Project Selection Panel */}
-          <div className="bg-gray-900 rounded-lg shadow-md h-1/3 overflow-hidden">
-            <ProjectSelector />
-          </div>
-          
-          {/* Documentation Panel - Takes up most of the space */}
-          {layout.documentationPanel.visible && (
-            <div className="bg-gray-900 rounded-lg shadow-md flex-1 overflow-auto">
-              <DocumentationPanel />
-            </div>
-          )}
+      {/* Right panels as 3 vertical sections */}
+      <div className="col-span-4 row-span-6 flex flex-col space-y-4">
+        {/* Project Selection Panel */}
+        <div className="bg-gray-900 rounded-lg shadow-md h-1/4 overflow-hidden">
+          <ProjectSelector />
         </div>
         
-        {/* Bottom section: Notifications Panel - Takes up the entire second row */}
+        {/* Documentation Panel */}
+        {layout.documentationPanel.visible && (
+          <div className="bg-gray-900 rounded-lg shadow-md h-2/4 overflow-auto">
+            <DocumentationPanel />
+          </div>
+        )}
+        
+        {/* Notifications Panel */}
         {layout.notificationsPanel.visible && (
-          <div className="bg-gray-900 rounded-lg shadow-md row-span-1 overflow-auto">
+          <div className="bg-gray-900 rounded-lg shadow-md h-1/4 overflow-auto">
             <NotificationsPanel />
           </div>
         )}
