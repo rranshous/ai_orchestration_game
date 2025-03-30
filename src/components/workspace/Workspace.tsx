@@ -28,9 +28,9 @@ const Workspace: React.FC = () => {
   };
   
   return (
-    <div className="grid grid-cols-12 grid-rows-6 gap-2 h-screen w-screen bg-gray-800 p-4">
-      {/* Agent Panel with Navigation */}
-      <div className="col-span-8 row-span-6">
+    <div className="grid grid-cols-12 gap-2 h-screen w-screen bg-gray-800 p-4">
+      {/* Agent Panel with Navigation - Takes 6/12 columns instead of 8/12 */}
+      <div className="col-span-6 h-full">
         <div className="h-full flex flex-col">
           <div className="flex justify-between items-center mb-2 px-2">
             <button 
@@ -58,27 +58,31 @@ const Workspace: React.FC = () => {
         </div>
       </div>
       
-      {/* Right panels as 3 vertical sections */}
-      <div className="col-span-4 row-span-6 flex flex-col space-y-4">
-        {/* Project Selection Panel */}
-        <div className="bg-gray-900 rounded-lg shadow-md h-1/4 overflow-hidden">
+      {/* Three vertical panels for Projects, Documentation, and Notifications - Each takes 2 columns */}
+      {/* Projects Panel */}
+      <div className="col-span-2 h-full overflow-hidden">
+        <div className="bg-gray-900 rounded-lg shadow-md h-full overflow-auto">
           <ProjectSelector />
         </div>
-        
-        {/* Documentation Panel */}
-        {layout.documentationPanel.visible && (
-          <div className="bg-gray-900 rounded-lg shadow-md h-2/4 overflow-auto">
+      </div>
+      
+      {/* Documentation Panel */}
+      {layout.documentationPanel.visible && (
+        <div className="col-span-2 h-full overflow-hidden">
+          <div className="bg-gray-900 rounded-lg shadow-md h-full overflow-auto">
             <DocumentationPanel />
           </div>
-        )}
-        
-        {/* Notifications Panel */}
-        {layout.notificationsPanel.visible && (
-          <div className="bg-gray-900 rounded-lg shadow-md h-1/4 overflow-auto">
+        </div>
+      )}
+      
+      {/* Notifications Panel */}
+      {layout.notificationsPanel.visible && (
+        <div className="col-span-2 h-full overflow-hidden">
+          <div className="bg-gray-900 rounded-lg shadow-md h-full overflow-auto">
             <NotificationsPanel />
           </div>
-        )}
-      </div>
+        </div>
+      )}
       
       {/* Toasts - Moved to bottom left to avoid obscuring notifications panel */}
       <div className="toast-container fixed bottom-4 left-4 space-y-2 z-50">
