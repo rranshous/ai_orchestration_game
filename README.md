@@ -3,6 +3,8 @@
 ## About
 AI Orchestration Game is a satirical simulation of a near-future workplace where humans act as "middleware" between specialized AI agents. The player's job is to move information between different AI systems to complete software development tasks while dealing with an impatient boss and an ever-growing project queue.
 
+![Screenshot from 2025-03-31 08-31-47](https://github.com/user-attachments/assets/749db02e-2a86-4a5e-b377-ae2de955beff)
+
 ## 🎮 Gameplay
 
 In this simulation:
