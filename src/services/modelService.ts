@@ -18,42 +18,26 @@ export enum BossMessageType {
 class ModelService {
   private baseUrl: string;
   private defaultModel: string;
-  private fallbackToMock = true; // Set to true to use mock responses by default
+  private fallbackToMock = false; // Default to using real models as requested
 
   constructor() {
     this.baseUrl = 'http://localhost:11434/api';
     this.defaultModel = 'gemma3';
     
-    // Immediately check if the API is available
-    this.checkApiAvailability();
+    // Remove the problematic /models API call
+    // Instead, we'll try to use the model directly and fall back to mock if it fails
   }
   
-  // Check if Ollama API is available
-  private async checkApiAvailability(): Promise<void> {
-    try {
-      const response = await fetch(`${this.baseUrl}/models`, { 
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (response.ok) {
-        console.log('Ollama API is available');
-        this.fallbackToMock = false; // Use real API if available
-      } else {
-        console.warn('Ollama API returned non-200 status, falling back to mock responses');
-      }
-    } catch (error) {
-      console.warn('Ollama API is not available, falling back to mock responses:', error);
-    }
-  }
-
+  // Removed checkApiAvailability method that was causing 404 errors
+  
   async generateAgentResponse(type: AgentType, input: string, context?: Record<string, any>): Promise<string> {
-    // If fallbackToMock is true, use mock responses
+    // Check fallbackToMock flag first
     if (this.fallbackToMock) {
       return this.getMockResponse(type);
     }
     
     try {
+      // Always attempt to use the real model first
       const enhancedPrompt = this.buildAgentPrompt(type, input, context);
       
       try {
@@ -71,6 +55,7 @@ class ModelService {
         return response;
       } catch (error) {
         console.error('Model API error:', error);
+        this.fallbackToMock = true; // Set to use mocks on failure
         return this.getMockResponse(type);
       }
     } catch (error) {
@@ -116,18 +101,45 @@ class ModelService {
   }
 
   private async callModel(request: ModelRequest): Promise<string> {
-    const response = await fetch(`${this.baseUrl}/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+    try {
+      const response = await fetch(`${this.baseUrl}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      // Handle streaming responses - The model may return a response with multiple JSON objects
+      const data = await response.json();
+      
+      // If the response has a 'response' field, use it directly
+      if (data.response) {
+        return data.response;
+      }
+      
+      // If there's no response field, it might be a streaming response
+      // In this case, we might have an array of messages or another format
+      if (typeof data === 'object') {
+        // Try to extract text from common response formats
+        if (Array.isArray(data) && data.length > 0) {
+          // If it's an array, join all text content
+          return data.map(item => item.content || item.text || '').join('');
+        } else if (data.content) {
+          return data.content;
+        } else if (data.text) {
+          return data.text;
+        }
+      }
+      
+      // If we can't determine the format, stringify the whole response
+      return JSON.stringify(data);
+    } catch (error) {
+      console.error("Error in callModel:", error);
+      throw error;
     }
-    
-    const data = await response.json();
-    return data.response;
   }
   
   private buildAgentPrompt(type: AgentType, input: string, context?: Record<string, any>): string {

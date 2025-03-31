@@ -105,7 +105,7 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
       {children}
       
       {showCertifyButton && (
-        <div className="mt-4 bg-green-900/30 border border-green-700 rounded-md p-3 text-center">
+        <div className="mt-4 bg-green-900/30 border border-green-700 rounded-md p-3 text-center sticky bottom-0 z-10">
           <p className="text-sm text-green-300 mb-2">Review the code and certify if it meets requirements.</p>
           <button 
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium"

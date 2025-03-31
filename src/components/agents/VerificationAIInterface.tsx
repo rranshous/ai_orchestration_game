@@ -17,7 +17,8 @@ const VerificationAIInterface: React.FC<VerificationAIInterfaceProps> = ({ agent
   return (
     <BaseAgentInterface agent={agent}>
       <div className="flex flex-col h-full overflow-hidden">
-        <div className="flex-grow grid grid-cols-2 gap-4">
+        {/* Set a max height for the content area to ensure button remains visible */}
+        <div className="flex-grow grid grid-cols-2 gap-4 max-h-[65vh] mb-4">
           <div className="overflow-hidden flex flex-col">
             <label className="block text-sm font-medium text-gray-300 mb-1">Code & Requirements</label>
             <textarea 
@@ -42,7 +43,8 @@ const VerificationAIInterface: React.FC<VerificationAIInterfaceProps> = ({ agent
           </div>
         </div>
         
-        <div className="mt-4 flex justify-between items-center">
+        {/* Make sure the button section is always visible and fixed at bottom */}
+        <div className="mt-auto flex justify-between items-center sticky bottom-0 bg-gray-900 pt-2">
           <div className="text-sm text-gray-400">
             {agent.status === "processing" ? "Analyzing code quality and compliance..." : "Ready for verification"}
           </div>
