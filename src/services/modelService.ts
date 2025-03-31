@@ -113,16 +113,20 @@ class ModelService {
       }
       
       // Handle streaming responses - The model may return a response with multiple JSON objects
+      console.log("raw response", response);
       const data = await response.json();
+      console.log("model response json", data);
       
       // If the response has a 'response' field, use it directly
       if (data.response) {
+        console.log("response has a response field", data.response);
         return data.response;
       }
       
       // If there's no response field, it might be a streaming response
       // In this case, we might have an array of messages or another format
       if (typeof data === 'object') {
+        console.log("response is an object", data);
         // Try to extract text from common response formats
         if (Array.isArray(data) && data.length > 0) {
           // If it's an array, join all text content
