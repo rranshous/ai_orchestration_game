@@ -37,16 +37,25 @@ const bossSlice = createSlice({
 export const { setLastMessageTime, setMessageTimer, setLatestMessage } = bossSlice.actions;
 
 // Thunk to start sending periodic boss messages
-export const startBossMessages = () => async (dispatch: any) => { // Removed unused getState parameter
+export const startBossMessages = () => async (dispatch: any) => {
+  let isSendingMessage = false; // Flag to prevent duplicate messages
+  
   // Send first message after a delay
   await delay(30000); // 30 seconds delay before first message
   
-  // Send a message
-  await dispatch(sendBossMessage());
+  // Send a message only if not already sending one
+  if (!isSendingMessage) {
+    await dispatch(sendBossMessage());
+  }
   
   // Set up interval for future messages
   const timerId = window.setInterval(async () => {
-    await dispatch(sendBossMessage());
+    // Only send a message if not already sending one
+    if (!isSendingMessage) {
+      isSendingMessage = true;
+      await dispatch(sendBossMessage());
+      isSendingMessage = false;
+    }
   }, 60000 + Math.random() * 120000); // Random interval between 1-3 minutes
   
   dispatch(setMessageTimer(timerId as unknown as number));

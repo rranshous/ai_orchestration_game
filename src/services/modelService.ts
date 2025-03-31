@@ -1,12 +1,6 @@
 import { AgentType } from '../types/agents';
 import { Project } from '../types/projects';
-
-interface ModelRequest {
-  model: string;
-  prompt: string;
-  stream?: boolean;
-  options?: Record<string, any>;
-}
+import ollamaService from './ollamaService';
 
 export enum BossMessageType {
   PRAISE = "praise",
@@ -16,36 +10,46 @@ export enum BossMessageType {
 }
 
 class ModelService {
-  private baseUrl: string;
   private defaultModel: string;
-  private fallbackToMock = false; // Default to using real models as requested
+  private fallbackToMock = false;
 
   constructor() {
-    this.baseUrl = 'http://localhost:11434/api';
     this.defaultModel = 'gemma3';
     
-    // Remove the problematic /models API call
-    // Instead, we'll try to use the model directly and fall back to mock if it fails
+    // Check if API is available
+    this.checkApiAvailability();
   }
   
-  // Removed checkApiAvailability method that was causing 404 errors
+  private async checkApiAvailability(): Promise<void> {
+    try {
+      const isAvailable = await ollamaService.isAvailable();
+      this.fallbackToMock = !isAvailable;
+      if (isAvailable) {
+        console.log('Ollama API is available');
+      } else {
+        console.warn('Ollama API is not available, falling back to mock responses');
+      }
+    } catch (error) {
+      console.warn('Error checking Ollama API availability:', error);
+      this.fallbackToMock = true;
+    }
+  }
   
   async generateAgentResponse(type: AgentType, input: string, context?: Record<string, any>): Promise<string> {
-    // Check fallbackToMock flag first
+    // If fallbackToMock is true, use mock responses
     if (this.fallbackToMock) {
       return this.getMockResponse(type);
     }
     
     try {
-      // Always attempt to use the real model first
       const enhancedPrompt = this.buildAgentPrompt(type, input, context);
       
       try {
-        // Call the Ollama API
-        const response = await this.callModel({
-          model: this.defaultModel,
-          prompt: enhancedPrompt
-        });
+        // Call the Ollama API using our service wrapper
+        const response = await ollamaService.generate(
+          this.defaultModel,
+          enhancedPrompt
+        );
         
         // If this is the product vision AI, sometimes reject the input
         if (type === AgentType.PRODUCT_VISION && this.shouldRejectInput()) {
@@ -55,7 +59,7 @@ class ModelService {
         return response;
       } catch (error) {
         console.error('Model API error:', error);
-        this.fallbackToMock = true; // Set to use mocks on failure
+        this.fallbackToMock = true;
         return this.getMockResponse(type);
       }
     } catch (error) {
@@ -69,13 +73,17 @@ class ModelService {
     projectContext?: Project, 
     performanceMetrics?: { completedCount: number, avgTime: number }
   ): Promise<string> {
+    if (this.fallbackToMock) {
+      return this.getMockBossMessage(type, projectContext?.name);
+    }
+    
     try {
       const prompt = this.buildBossPrompt(type, projectContext, performanceMetrics);
       
-      const response = await this.callModel({
-        model: this.defaultModel,
-        prompt: prompt
-      });
+      const response = await ollamaService.generate(
+        this.defaultModel,
+        prompt
+      );
       
       return response;
     } catch (error) {
@@ -100,52 +108,6 @@ class ModelService {
     return rejections[Math.floor(Math.random() * rejections.length)];
   }
 
-  private async callModel(request: ModelRequest): Promise<string> {
-    try {
-      const response = await fetch(`${this.baseUrl}/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      // Handle streaming responses - The model may return a response with multiple JSON objects
-      console.log("raw response", response);
-      const data = await response.json();
-      console.log("model response json", data);
-      
-      // If the response has a 'response' field, use it directly
-      if (data.response) {
-        console.log("response has a response field", data.response);
-        return data.response;
-      }
-      
-      // If there's no response field, it might be a streaming response
-      // In this case, we might have an array of messages or another format
-      if (typeof data === 'object') {
-        console.log("response is an object", data);
-        // Try to extract text from common response formats
-        if (Array.isArray(data) && data.length > 0) {
-          // If it's an array, join all text content
-          return data.map(item => item.content || item.text || '').join('');
-        } else if (data.content) {
-          return data.content;
-        } else if (data.text) {
-          return data.text;
-        }
-      }
-      
-      // If we can't determine the format, stringify the whole response
-      return JSON.stringify(data);
-    } catch (error) {
-      console.error("Error in callModel:", error);
-      throw error;
-    }
-  }
-  
   private buildAgentPrompt(type: AgentType, input: string, context?: Record<string, any>): string {
     let systemPrompt = '';
     
