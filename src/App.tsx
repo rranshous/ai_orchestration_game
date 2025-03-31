@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ClipboardProvider } from './context/ClipboardContext';
 import Workspace from './components/workspace/Workspace';
+import LoginScreen from './components/login/LoginScreen';
 import HelpDialog from './components/feedback/HelpDialog';
 import { useAppSelector, useAppDispatch } from './state/hooks';
 import { hide } from './state/reducers/helpReducer';
@@ -9,29 +10,23 @@ import { startBossMessages, stopBossMessages } from './state/reducers/bossReduce
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
   const showHelp = useAppSelector(state => state.help.showHelp);
+  const isLoggedIn = useAppSelector(state => state.user.isLoggedIn);
 
   useEffect(() => {
-    // Initialize any necessary state on app load
-    // For example, load saved game if it exists
-    const savedGame = localStorage.getItem('aiOrchestrator_saveGame');
-    if (savedGame) {
-      try {
-        // Note: commented out for now until we implement loading saved games
-        // const gameState = JSON.parse(savedGame);
-        // dispatch(loadSavedGame(gameState));
-      } catch (error) {
-        console.error('Error loading saved game:', error);
-      }
+    // Only initialize boss messages after user is logged in
+    if (isLoggedIn) {
+      dispatch(startBossMessages());
+      
+      return () => {
+        dispatch(stopBossMessages());
+      };
     }
+  }, [dispatch, isLoggedIn]);
 
-    // Initialize boss messages
-    dispatch(startBossMessages());
-    
-    // Clean up on unmount
-    return () => {
-      dispatch(stopBossMessages());
-    };
-  }, [dispatch]);
+  // Show login screen if not logged in
+  if (!isLoggedIn) {
+    return <LoginScreen />;
+  }
 
   return (
     <ClipboardProvider>

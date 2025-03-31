@@ -38,23 +38,24 @@ export const { setLastMessageTime, setMessageTimer, setLatestMessage } = bossSli
 
 // Thunk to start sending periodic boss messages
 export const startBossMessages = () => async (dispatch: any) => {
-  let isSendingMessage = false; // Flag to prevent duplicate messages
+  let isMessageInProgress = false;
   
   // Send first message after a delay
   await delay(30000); // 30 seconds delay before first message
   
-  // Send a message only if not already sending one
-  if (!isSendingMessage) {
+  // Send a message if not already in progress
+  if (!isMessageInProgress) {
+    isMessageInProgress = true;
     await dispatch(sendBossMessage());
+    isMessageInProgress = false;
   }
   
   // Set up interval for future messages
-  const timerId = window.setInterval(async () => {
-    // Only send a message if not already sending one
-    if (!isSendingMessage) {
-      isSendingMessage = true;
+  const timerId = setInterval(async () => {
+    if (!isMessageInProgress) {
+      isMessageInProgress = true;
       await dispatch(sendBossMessage());
-      isSendingMessage = false;
+      isMessageInProgress = false;
     }
   }, 60000 + Math.random() * 120000); // Random interval between 1-3 minutes
   
@@ -76,6 +77,9 @@ export const sendBossMessage = () => async (dispatch: any, getState: any) => {
     state.projects.projects.find((p: any) => p.id === state.projects.activeProjectId) : 
     null;
   
+  const userName = state.user.name || "Employee";
+  const bossName = "Victoria Chambers"; // Hardcoded boss name
+  
   const completedProjects = state.projects.projects.filter((p: any) => p.status === 'completed');
   const abandonedProjects = state.projects.projects.filter((p: any) => p.status === 'abandoned');
   
@@ -93,13 +97,15 @@ export const sendBossMessage = () => async (dispatch: any, getState: any) => {
   }
   
   try {
-    // Generate boss message
+    // Generate boss message with user name context
     const message = await modelService.generateBossMessage(
       messageType,
       activeProject,
       {
         completedCount: completedProjects.length,
-        avgTime: calculateAverageTime(completedProjects)
+        avgTime: calculateAverageTime(completedProjects),
+        userName: userName,
+        bossName: bossName
       }
     );
     

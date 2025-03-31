@@ -77,20 +77,6 @@ const ProjectSelector: React.FC = () => {
               </div>
             )}
             
-            {pendingProjects.length > 0 && (
-              <div className={activeProjects.length > 0 ? "mt-4" : ""}>
-                <h3 className="text-sm font-medium text-gray-400 mb-2">Available Projects</h3>
-                {pendingProjects.map(project => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    onClick={() => handleStartProject(project.id)}
-                    isActive={activeProjectId === project.id}
-                  />
-                ))}
-              </div>
-            )}
-            
             {abandonedProjects.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-sm font-medium text-red-400 mb-2">Abandoned Projects</h3>
@@ -100,6 +86,20 @@ const ProjectSelector: React.FC = () => {
                     project={project}
                     onClick={() => handleStartProject(project.id)}
                     isActive={false}
+                  />
+                ))}
+              </div>
+            )}
+            
+            {pendingProjects.length > 0 && (
+              <div className={activeProjects.length > 0 ? "mt-4" : ""}>
+                <h3 className="text-sm font-medium text-gray-400 mb-2">Available Projects</h3>
+                {pendingProjects.map(project => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onClick={() => handleStartProject(project.id)}
+                    isActive={activeProjectId === project.id}
                   />
                 ))}
               </div>
