@@ -95,8 +95,7 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
     dispatch(showCompletionDialog({ project: { ...activeProject, success } }));
   };
   
-  // Only show the "Certify Code" button on the certification step and for the code writer agent
-  // Modified to ignore the agent status - always show the button on certification step
+  // Modified to make the button more visible - always show the button when in certification step
   const showCertifyButton = isCertificationStep && activeStep?.agentId === agent.id;
   
   return (
@@ -105,12 +104,14 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
       
       {showCertifyButton && (
         <div className="mt-4 bg-green-900/30 border border-green-700 rounded-md p-3 text-center sticky bottom-0 z-10">
-          <p className="text-sm text-green-300 mb-2">Review the code and certify if it meets requirements.</p>
+          <p className="text-sm text-green-300 mb-2">
+            <strong>FINAL STEP:</strong> Review the code and certify that it meets requirements.
+          </p>
           <button 
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium text-lg"
             onClick={handleCertifyCode}
           >
-            Certify Code
+            CERTIFY CODE
           </button>
         </div>
       )}

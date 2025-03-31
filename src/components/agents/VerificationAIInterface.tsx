@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppDispatch } from '../../state/hooks';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { AiAgent, setInput } from '../../state/reducers/agentReducer';
 import BaseAgentInterface from './BaseAgentInterface';
 
@@ -9,6 +9,9 @@ interface VerificationAIInterfaceProps {
 
 const VerificationAIInterface: React.FC<VerificationAIInterfaceProps> = ({ agent }) => {
   const dispatch = useAppDispatch();
+  // Check if workflow is in certification step
+  const workflow = useAppSelector(state => state.workflow.current);
+  const activeStep = workflow.steps.find(step => step.isActive);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     dispatch(setInput({ agentId: agent.id, input: e.target.value }));
@@ -17,6 +20,8 @@ const VerificationAIInterface: React.FC<VerificationAIInterfaceProps> = ({ agent
   return (
     <BaseAgentInterface agent={agent}>
       <div className="flex flex-col h-full overflow-hidden">
+        {/* Removed certification guidance message */}
+        
         {/* Set a max height for the content area to ensure button remains visible */}
         <div className="flex-grow grid grid-cols-2 gap-4 max-h-[65vh] mb-4">
           <div className="overflow-hidden flex flex-col">

@@ -76,7 +76,12 @@ const DocumentationPanel: React.FC = () => {
             
             {activeAgent && (
               <div className="agent-instructions mt-4">
-                <h4 className="text-sm font-medium text-gray-300">Using {activeAgent.name}</h4>
+                <h4 className="text-sm font-medium text-gray-300">
+                  Using {activeAgent.name}
+                  {activeStep.id === "step-certification" && 
+                    <span className="ml-2 text-yellow-400">(Navigate to Code Writer AI panel)</span>
+                  }
+                </h4>
                 <p className="text-sm text-gray-400 mt-1">{activeAgent.description}</p>
                 
                 <div className="mt-4 p-3 bg-gray-800 rounded">
