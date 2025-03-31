@@ -1,14 +1,39 @@
-# AI Orchestrator
+# AI Orchestration Game
 
-AI Orchestrator is a satirical simulation game where players manage the flow of information between AI systems in a future software development environment. Players act as human middleware, copying and pasting outputs between specialized AI agents to complete software development projects.
+## About
+AI Orchestration Game is a satirical simulation of a near-future workplace where humans act as "middleware" between specialized AI agents. The player's job is to move information between different AI systems to complete software development tasks while dealing with an impatient boss and an ever-growing project queue.
 
-## 🎮 Overview
+## 🎮 Gameplay
 
-In this game, you'll:
-- Manage projects through a simplified workflow
-- Interact with specialized AI agents (Product Vision AI and Code Writer AI)
-- Transfer information between agents using a copy-paste system
-- Complete development projects to progress
+In this simulation:
+
+- You are an enterprise software operator responsible for coordinating AI agents
+- Transfer information between specialized AI agents to complete development projects
+- Deal with a demanding boss who sends messages about your performance
+- Manage a growing queue of projects with time pressure
+- Navigate a byzantine workflow process for each project
+
+## 🚀 Key Features
+
+- **Multiple AI Agents**:
+  - Product Vision AI - Converts requirements into specifications
+  - Code Writer AI - Generates complex Haskell code
+  - Verification AI - Critiques the code (always finds issues)
+
+- **Boss Interaction**:
+  - Receive messages from your boss "Victoria Chambers"
+  - Messages adapt to your performance and project history
+  - Experience backhanded praise, criticism, and urgent demands
+
+- **Project Management**:
+  - Automatically assigned projects with increasing pressure
+  - Project timers track how long you've spent on each task
+  - Abandoned projects remain visible with a red highlight
+
+- **Workflow System**:
+  - Navigate through multiple steps for each project
+  - Copy outputs from one AI agent to another
+  - Certify code even though the verification AI always finds issues
 
 ## 🚀 Getting Started
 
