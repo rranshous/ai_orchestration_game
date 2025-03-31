@@ -22,7 +22,7 @@ class ModelService {
 
   constructor() {
     this.baseUrl = 'http://localhost:11434/api';
-    this.defaultModel = 'llama3';
+    this.defaultModel = 'gemma3';
     
     // Immediately check if the API is available
     this.checkApiAvailability();
