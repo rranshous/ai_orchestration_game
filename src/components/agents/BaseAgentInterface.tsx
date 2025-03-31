@@ -95,10 +95,9 @@ const BaseAgentInterface: React.FC<BaseAgentProps> = ({ agent, children }) => {
     dispatch(showCompletionDialog({ project: { ...activeProject, success } }));
   };
   
-  // Only show the "Certify Code" button on the certification step
-  const showCertifyButton = isCertificationStep && 
-                            agent.status === "complete" && 
-                            activeStep?.agentId === agent.id;
+  // Only show the "Certify Code" button on the certification step and for the code writer agent
+  // Modified to ignore the agent status - always show the button on certification step
+  const showCertifyButton = isCertificationStep && activeStep?.agentId === agent.id;
   
   return (
     <div className="agent-interface flex flex-col h-full">

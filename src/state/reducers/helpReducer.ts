@@ -5,7 +5,7 @@ export interface HelpState {
 }
 
 const initialState: HelpState = {
-  showHelp: true, // Show help dialog on first launch
+  showHelp: false, // Changed from true to false - don't show help dialog on first launch
 };
 
 const helpSlice = createSlice({

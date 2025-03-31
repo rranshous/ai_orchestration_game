@@ -148,6 +148,8 @@ Format your response with these sections:
 VERIFICATION RESULTS: (always say FAIL)
 ISSUES FOUND: (list issues in excruciating detail, be very picky)
 RECOMMENDATIONS: (list recommendations using complex technical language)
+
+IMPORTANT: Do not include any Markdown formatting or code blocks (no backticks) in your response. Provide your analysis as plain text only.
 `;
         break;
     }
@@ -172,6 +174,9 @@ RECOMMENDATIONS: (list recommendations using complex technical language)
 Be impatient, corporate-focused, and somewhat condescending.
 Keep messages brief but intimidating.
 Include a subject line and signature in your message.
+IMPORTANT: Stay strictly in character. Never break character by asking questions about the message itself or referencing that you're an AI.
+Never say things like "Do you need me to adjust this?" or "Let me know if you need anything else."
+The message should only contain what ${bossName} would actually say to ${userName}.
 Message type: ${type}
 ${project ? `Current project: ${project.name} - ${project.description}` : ''}
 ${metrics ? `Metrics: ${metrics.completedCount} projects completed, ${metrics.avgTime}s average completion time` : ''}
@@ -225,231 +230,121 @@ NON-FUNCTIONAL REQUIREMENTS:
 - Internationalization support for 12 languages`;
       
       case AgentType.CODE_WRITER:
-        return `{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE OverloadedStrings #-}
+        // Simplified Haskell code to avoid syntax issues
+        return `{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
 
-module EnterpriseAuthentication
-  ( implementUserAuthentication
-  , processAuthenticationRequest
-  , generateSecurityToken
-  ) where
+module AuthenticationSystem where
 
 import Control.Monad.Reader
 import Control.Monad.Except
-import Control.Concurrent.MVar
-import Data.Aeson (Value(..), object, (.=))
-import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Map as M
-import Data.Functor.Identity
-import Data.Hashable
-import System.Random
-import Crypto.Hash
 import Data.Time.Clock
 
 -- | Sophisticated type-level encoding of authentication states
 data AuthState = Unauthenticated | Authenticated | MFARequired
 
--- | Phantom types to enforce state transitions
-newtype AuthMonad (s :: AuthState) a = AuthMonad { 
-  runAuthMonad :: ReaderT AuthEnv (ExceptT AuthError IO) a 
+-- | User authentication data types
+data UserCredentials = UserCredentials {
+  username :: Text,
+  passwordHash :: Text,
+  mfaEnabled :: Bool
 }
 
--- | Enterprise-grade authentication environment
+-- | Authentication monad for secure operations
+newtype AuthMonad a = AuthMonad { 
+  runAuthM :: ReaderT AuthEnv (ExceptT AuthError IO) a 
+}
+
+-- | Possible authentication errors
+data AuthError = 
+    InvalidCredentials 
+  | AccountLocked 
+  | MFARequired
+  | SessionExpired
+
+-- | Environment for authentication operations
 data AuthEnv = AuthEnv {
-  -- | Repository of user credentials with logarithmic lookup time complexity
-  userCredentialStore :: M.Map Text UserData,
-  -- | Cryptographically secure token generation function
-  tokenGenerator :: IO ByteString,
-  -- | Multi-factor authentication service URL
-  mfaServiceUrl :: Text,
-  -- | Token validation timeout in microseconds
-  tokenTimeout :: Integer,
-  -- | Complex rate-limiting policy implementation
-  rateLimitingFunction :: Text -> IO Bool
+  -- | User credential store with logarithmic lookup complexity
+  userStore :: M.Map Text UserCredentials,
+  -- | Token expiration time in seconds
+  tokenExpiry :: Int,
+  -- | MFA service configuration
+  mfaConfig :: MFAConfig
 }
 
--- | User-specific information persisted in the credential store
-data UserData = UserData {
-  -- | Securely hashed password using industry-standard algorithms
-  passwordHash :: Digest SHA256,
-  -- | Role-based authorization metadata
-  userPermissions :: [Permission],
-  -- | Multi-factor authentication configuration
-  mfaSettings :: MFAConfig,
-  -- | Historical access patterns for anomaly detection
-  accessHistory :: [AccessRecord]
-}
-
--- | Granular permission system for role-based access control
-data Permission = CanRead EntityType 
-                | CanWrite EntityType 
-                | CanDelete EntityType
-                | CanManage EntityType
-
--- | Enterprise domain model entity types
-data EntityType = UserEntity 
-                | ReportEntity 
-                | DashboardEntity
-                | SystemSettings
-
--- | Multi-factor authentication configuration options
+-- | Multi-factor authentication configuration
 data MFAConfig = MFAConfig {
-  mfaEnabled :: Bool,
-  preferredMethod :: MFAMethod,
-  backupCodes :: [Text],
-  lastVerification :: UTCTime
+  -- | SMS provider API endpoint
+  smsProvider :: Text,
+  -- | Email service configuration
+  emailService :: EmailConfig,
+  -- | Backup code settings
+  backupCodeSettings :: BackupCodeSettings
 }
 
--- | Available multi-factor authentication methods
-data MFAMethod = SMSAuthentication 
-               | EmailAuthentication 
-               | AuthenticatorApp 
-               | BiometricAuthentication
-
--- | Access record for security auditing and compliance
-data AccessRecord = AccessRecord {
-  timestamp :: UTCTime,
-  ipAddress :: Text,
-  userAgent :: Text,
-  geoLocation :: Maybe (Double, Double)
+-- | Email service configuration
+data EmailConfig = EmailConfig {
+  smtpServer :: Text,
+  smtpPort :: Int,
+  smtpUsername :: Text,
+  smtpPassword :: Text
 }
 
--- | Comprehensive error handling for authentication flows
-data AuthError = InvalidCredentials
-               | AccountLocked
-               | MFAFailed
-               | SessionExpired
-               | RateLimitExceeded
-               | NetworkError Text
-               | ConfigurationError Text
+-- | Backup code generation settings
+data BackupCodeSettings = BackupCodeSettings {
+  codeLength :: Int,
+  codeCount :: Int,
+  codeSalt :: Text
+}
 
--- | Implementation of user authentication with security best practices
--- | Utilizes advanced monadic composition for secure state transitions
-implementUserAuthentication :: Text -> Text -> AuthMonad 'Unauthenticated (Either AuthError (AuthMonad 'Authenticated ByteString))
-implementUserAuthentication username password = AuthMonad $ do
-  -- Retrieve enterprise environment configuration
+-- | Main authentication function with proper error handling
+authenticateUser :: Text -> Text -> AuthMonad (Either AuthError Text)
+authenticateUser username password = AuthMonad $ do
   env <- ask
-  
-  -- Leverage the computational power of monads for elegant error handling
-  lift $ ExceptT $ do
-    -- Check rate limiting as defense against brute force attacks
-    rateOk <- (rateLimitingFunction env) username
-    unless rateOk $ return $ Left RateLimitExceeded
-    
-    -- Retrieve user data with defensive programming patterns
-    case M.lookup username (userCredentialStore env) of
-      Nothing -> return $ Left InvalidCredentials
-      Just userData -> do
-        -- Verify password hash using cryptographically secure comparison
-        if verifyPasswordHash password (passwordHash userData)
-          then do
-            -- Generate secure session token with appropriate entropy
-            token <- (tokenGenerator env)
-            -- Transition to authenticated state via phantom type safety
-            return $ Right $ AuthMonad $ return token
-          else
-            return $ Left InvalidCredentials
+  let users = userStore env
+  case M.lookup username users of
+    Nothing -> return (Left InvalidCredentials)
+    Just userCreds -> 
+      if verifyPassword password (passwordHash userCreds)
+        then if mfaEnabled userCreds
+          then return (Left MFARequired)
+          else do
+            token <- generateToken username
+            return (Right token)
+        else return (Left InvalidCredentials)
 
--- | Sophisticated password verification with constant-time comparison
--- | to mitigate timing attack vulnerabilities
-verifyPasswordHash :: Text -> Digest SHA256 -> Bool
-verifyPasswordHash password storedHash = 
-  hash (T.encodeUtf8 password) == storedHash
-
--- | Process incoming authentication requests through a validation pipeline
-processAuthenticationRequest :: Value -> AuthMonad 'Unauthenticated (Either AuthError ByteString)
-processAuthenticationRequest requestJson = AuthMonad $ do
-  -- Extract username and password from JSON payload
-  let extractedUsername = extractUsername requestJson
-      extractedPassword = extractPassword requestJson
-  
-  -- Validate input through a sophisticated validation pipeline
-  case validateAuthInputs extractedUsername extractedPassword of
-    Left err -> lift $ ExceptT $ return $ Left err
-    Right (username, password) -> do
-      -- Delegate to core authentication function with proper type safety
-      result <- runReaderT (runExceptT (runAuthMonad $ implementUserAuthentication username password)) =<< ask
-      case result of
-        Left err -> lift $ ExceptT $ return $ Left err
-        Right authMonad -> do
-          -- Execute the authenticated computation to get the token
-          token <- runReaderT (runExceptT (runAuthMonad authMonad)) =<< ask
-          case token of
-            Left err -> lift $ ExceptT $ return $ Left err
-            Right validToken -> lift $ ExceptT $ return $ Right validToken
-
--- | Extract username from JSON using applicative functors
-extractUsername :: Value -> Maybe Text
-extractUsername (Object obj) = case lookup "username" obj of
-  Just (String username) -> Just username
-  _ -> Nothing
-extractUsername _ = Nothing
-
--- | Extract password from JSON using applicative functors
-extractPassword :: Value -> Maybe Text
-extractPassword (Object obj) = case lookup "password" obj of
-  Just (String password) -> Just password
-  _ -> Nothing
-extractPassword _ = Nothing
-
--- | Validate authentication inputs with comprehensive error checking
-validateAuthInputs :: Maybe Text -> Maybe Text -> Either AuthError (Text, Text)
-validateAuthInputs Nothing _ = Left $ ConfigurationError "Missing username"
-validateAuthInputs _ Nothing = Left $ ConfigurationError "Missing password"
-validateAuthInputs (Just username) (Just password)
-  | T.null username = Left $ ConfigurationError "Empty username"
-  | T.null password = Left $ ConfigurationError "Empty password"
-  | T.length password < 8 = Left $ ConfigurationError "Password too short"
-  | otherwise = Right (username, password)
-
--- | Generate a cryptographically secure authentication token
--- | with appropriate entropy for enterprise security requirements
-generateSecurityToken :: AuthMonad s ByteString
-generateSecurityToken = AuthMonad $ lift $ ExceptT $ do
-  -- Generate random bytes with cryptographic-grade entropy
-  randomBytes <- replicateM 32 (randomRIO (0, 255) :: IO Int)
-  -- Convert to a hexadecimal representation for transmission
-  let hexToken = foldr (\\x acc -> T.pack (showHex x "") <> acc) "" randomBytes
-  -- Apply additional HMAC for token integrity
-  currentTime <- getCurrentTime
-  let signedToken = hmacSHA256 (T.encodeUtf8 $ T.pack $ show currentTime) (T.encodeUtf8 hexToken)
-  return $ Right $ encode $ object
-    [ "token" .= hexToken
-    , "expires" .= addUTCTime (60 * 60) currentTime
-    , "signature" .= signedToken
-    ]`;
+-- | More complex functions omitted for brevity...`;
       
       case AgentType.VERIFICATION_AI:
         return `VERIFICATION RESULTS: FAIL
 
 ISSUES FOUND:
-1. Implementation lacks proper initialization sequences - the monad transformer stack doesn't properly sequence IO actions with appropriate bracketing for resource management.
+1. Implementation lacks proper initialization sequences - the monad transformer stack doesn't properly sequence IO actions.
 2. The AuthMonad implementation violates the Monad laws due to improper handling of the ReaderT/ExceptT stack.
-3. Memory management inefficiencies detected in the credential store implementation - the Map structure leads to O(log n) lookups when a more optimized trie structure could achieve O(k) performance.
-4. The authentication flow is incomplete and doesn't properly handle session refreshing.
+3. Memory management inefficiencies detected - Map structure leads to O(log n) lookups when a trie could achieve O(k).
+4. Authentication flow is incomplete and doesn't properly handle session refreshing.
 5. No rate-limiting implementation for MFA attempts, creating a security vulnerability.
-6. Multiple potential side-channel vulnerabilities in the password verification function despite claims of constant-time comparison.
-7. Critical functionality missing for implementation of the MFA verification process.
-8. Non-functional requirement for response time unlikely to be met due to inefficient token generation algorithm.
-9. No implementation found for the notification preferences management specified in requirements.
-10. The code violates several Haskell best practices, including excessive use of language extensions without necessity.
+6. Password verification lacks constant-time comparison, introducing timing attack vectors.
+7. Critical functionality missing for MFA verification process.
+8. Inefficient token generation algorithm will cause performance bottlenecks.
+9. No implementation found for notification preferences management.
+10. Excessive and unnecessary language extensions.
 
 RECOMMENDATIONS:
-1. Refactor the monad transformer stack using proper bracket patterns to ensure resource cleanup.
-2. Implement proper Monad instance with lawful behavior for the AuthMonad type.
-3. Replace Map with a prefix tree (trie) data structure for O(k) lookup performance on user credentials.
-4. Complete the authentication flow with proper session management using the SessionT monad transformer.
-5. Implement exponential backoff for MFA verification attempts to mitigate brute force attacks.
-6. Replace the password verification function with a provably constant-time comparison using Data.ByteArray.constantTimeEq.
-7. Implement the missing MFA verification process using a proper state machine approach.
-8. Optimize the token generation algorithm using a cryptographically secure DRBG instead of System.Random.
-9. Add the required notification preferences management using a preference algebra approach.
-10. Minimize language extensions to only those strictly necessary and follow the PVP for better compatibility.`;
+1. Refactor the monad transformer stack using proper bracket patterns.
+2. Implement proper Monad instance with lawful behavior.
+3. Replace Map with a prefix tree (trie) data structure for O(k) lookup performance.
+4. Complete the authentication flow with SessionT monad transformer.
+5. Implement exponential backoff for MFA verification attempts.
+6. Use Data.ByteArray.constantTimeEq for password verification.
+7. Add state machine for MFA verification process.
+8. Use cryptographically secure DRBG instead of System.Random.
+9. Add preference algebra for notification management.
+10. Minimize language extensions to only those necessary.`;
       
       default:
         return "Processing complete.";
